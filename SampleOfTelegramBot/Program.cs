@@ -9,7 +9,13 @@ namespace Pavlo.SampleOfTelegramBot
         static async Task Main(string[] args)
         {
             bot = new TBot(@"d:\k.txt");
-            Console.ReadLine();
+            await bot.Initialize();
+            Console.WriteLine(DateTime.Now+$" Start listening for @{bot.BotUser.Username}!");
+            Console.Title = $"Telegram bot @{bot.BotUser.Username}";
+
+            do
+            {
+            } while (Console.ReadLine().ToLowerInvariant() != "exit");
         }
     }
 }
