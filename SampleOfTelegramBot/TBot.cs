@@ -17,8 +17,14 @@ namespace Pavlo.SampleOfTelegramBot
 {
     public class TBot
     {
+        /// <summary>
+        /// path to file with botID
+        /// </summary>
         private readonly string pathToBotID;
 
+        /// <summary>
+        /// words that wake up bot
+        /// </summary>
         public List<string> BotOnKeywords
         { get; set; }
 
@@ -30,7 +36,7 @@ namespace Pavlo.SampleOfTelegramBot
 
         public Telegram.Bot.Types.User BotUser
         {
-            get;
+            get; 
             private set;
         }
 
@@ -46,6 +52,10 @@ namespace Pavlo.SampleOfTelegramBot
             BotOnKeywords.AddRange(weatherAction.BotOnKeywords);
         }
 
+        /// <summary>
+        /// async initialization of the bot instance
+        /// </summary>
+        /// <returns></returns>
         public async Task Initialize()
         {
             //reading of the ID
@@ -55,7 +65,6 @@ namespace Pavlo.SampleOfTelegramBot
             Bot = new Telegram.Bot.TelegramBotClient(botID);
             BotUser = await Bot.GetMeAsync();
 
-            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!revise all below 
             var cts = new CancellationTokenSource();
             //Below the new "pooling" way instead of the "obsolete" way based on build-in events system 
             // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
@@ -96,36 +105,39 @@ namespace Pavlo.SampleOfTelegramBot
                 await SendInlineKeyboard(message);
             else
                 return;
+        }
 
-            async Task<Message> SendInlineKeyboard(Message message)
+        async Task<Message> SendInlineKeyboard(Message message)
+        {
+            InlineKeyboardButton btnWeather = InlineKeyboardButton.WithCallbackData(weatherAction.BtnName, weatherAction.BtnCallbackData);
+
+            var inlineKeyboard = new InlineKeyboardMarkup(new[]
             {
-                InlineKeyboardButton btnWeather = InlineKeyboardButton.WithCallbackData("Weather \ud83c\udf24\ufe0f", "weather");
-
-                var inlineKeyboard = new InlineKeyboardMarkup(new[]
-                {
                     // first row
                     new []
                     {
                         btnWeather
                     }
                 });
-                return await Bot.SendTextMessageAsync(
-                    chatId: message.Chat.Id,
-                    text: "Click on your choice",
-                    replyMarkup: inlineKeyboard
-                );
-            }
+            return await Bot.SendTextMessageAsync(
+                chatId: message.Chat.Id,
+                text: "Click on your choice",
+                replyMarkup: inlineKeyboard
+            );
         }
 
         private async Task CallbackQueryTask(CallbackQuery callbackQuery)
         {
-            await Bot.AnswerCallbackQueryAsync(
-                callbackQueryId: callbackQuery.Id,
-                text: $"RECIEVED {callbackQuery.Data}");
+            if (callbackQuery.Data == weatherAction.BtnCallbackData)
+            {
+                await Bot.AnswerCallbackQueryAsync(
+                    callbackQueryId: callbackQuery.Id,
+                    text: weatherAction.AnswerCallbackQuery);
 
-            await Bot.SendTextMessageAsync(
-                chatId: callbackQuery.Message.Chat.Id,
-                text: $"Received {callbackQuery.Data}");
+                await Bot.SendTextMessageAsync(
+                    chatId: callbackQuery.Message.Chat.Id,
+                    text: await weatherAction.GetCurrentWeatherAsync());
+            }
         }
 
         public static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -136,13 +148,13 @@ namespace Pavlo.SampleOfTelegramBot
                 _ => exception.ToString()
             };
 
-            Console.WriteLine(ErrorMessage);
+            Console.WriteLine(DateTime.Now+ " "+  ErrorMessage);
             return Task.CompletedTask;
         }
 
         private Task UnknownUpdateHandlerAsync(Update update)
         {
-            Console.WriteLine($"Unhandled update type: {update.Type}");
+            Console.WriteLine(DateTime.Now+$" Unhandled update type: {update.Type}");
             return Task.CompletedTask;
         }
     }
