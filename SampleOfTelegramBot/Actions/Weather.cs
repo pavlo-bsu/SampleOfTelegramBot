@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace Pavlo.SampleOfTelegramBot.Actions
 {
@@ -29,7 +31,7 @@ namespace Pavlo.SampleOfTelegramBot.Actions
 
         public async Task<string> GetCurrentWeatherAsync()
         {
-            return await GetWeatherFromPogodaByAsync();
+            return await GetWeatherFromPogodaByAsync_v_11_2021();
         }
 
         /// <summary>
@@ -75,6 +77,50 @@ namespace Pavlo.SampleOfTelegramBot.Actions
             webWeather = webWeather.Replace("<br>", "\n").Replace("<strong>", string.Empty).Replace("</strong> ", string.Empty).Replace("&deg;", " °");
 
             return webWeather;
+        }
+        /// <summary>
+        /// Get current temperature from "pogoda.by" (after redesign 11.2021), i.e. from minsk weather station (Minsk-Uruchie). 
+        /// </summary>
+        /// <returns></returns>
+        private async Task<string> GetWeatherFromPogodaByAsync_v_11_2021()
+        {
+            Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+            System.Net.WebClient wc = new System.Net.WebClient();
+            wc.Encoding = System.Text.Encoding.UTF8;
+            string webData = wc.DownloadString("https://pogoda.by/rss/weather?station=26850");
+
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(webData);
+
+            XmlElement xRoot = xmlDoc.DocumentElement;
+
+            //formatting time: UTC to local Minsk time
+            XmlElement weatherDate = xRoot["channel"]["item"];
+            string s = weatherDate["pubDate"].InnerText;
+            var sArray = s.Split();
+            string date = sArray[1] + " " + sArray[2] + " " + sArray[3];
+
+            DateTime d = DateTime.Parse(date, new System.Globalization.CultureInfo("en-US"));
+
+            string time = sArray[4];
+            DateTime t = DateTime.Parse(time, new System.Globalization.CultureInfo("en-US"));
+
+            string dateTime = date + " " + time;
+            DateTime dt = DateTime.Parse(dateTime, new System.Globalization.CultureInfo("en-US"));
+
+            dt = dt.AddHours(3);
+
+            string datetimeOut = (dt.ToShortDateString() + " " + dt.ToLongTimeString());
+
+            //formatting weather
+            string[] weather = weatherDate["description"].InnerText.Split(" | ", StringSplitOptions.None);
+            weather = weather.Where(val => !val.ToLowerInvariant().StartsWith("давление")).ToArray();
+            var weatherOut = string.Join("\n", weather);
+
+            string outString = "Погода\n"+datetimeOut+"\n"+weatherOut;
+
+            return outString;
         }
     }
 }
