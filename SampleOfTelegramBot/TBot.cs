@@ -7,7 +7,6 @@ using Telegram;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Exceptions;
 using System.Linq;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -18,7 +17,7 @@ namespace Pavlo.SampleOfTelegramBot
     public class TBot
     {
         /// <summary>
-        /// path to file with botID
+        /// Bot ID (or bot token)
         /// </summary>
         private readonly string botID = "INSERT_KEY!";
 
