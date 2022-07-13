@@ -11,6 +11,7 @@ using Telegram.Bot.Exceptions;
 using System.Linq;
 using Telegram.Bot.Types.ReplyMarkups;
 using Pavlo.SampleOfTelegramBot.Actions;
+using Amazon.Lambda.Core;
 
 namespace Pavlo.SampleOfTelegramBot
 {
@@ -112,7 +113,7 @@ namespace Pavlo.SampleOfTelegramBot
 
         private Task UnknownUpdateHandlerAsync(Update update)
         {
-            Console.WriteLine($" Unhandled update type: {update.Type}");
+            LambdaLogger.Log($" Unhandled update type: {update.Type}");
             return Task.CompletedTask;
         }
     }
