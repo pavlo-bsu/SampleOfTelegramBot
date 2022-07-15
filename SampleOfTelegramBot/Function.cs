@@ -6,16 +6,22 @@ using Telegram.Bot.Types;
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 //[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
-
 namespace Pavlo.SampleOfTelegramBot
 {
-
     public class Function
     {
+        // Bot and it initialization (in stat. constructor) are done static just to use Bot instance several times during "living" of the instance of the class (depends on AWS settings)
+
         /// <summary>
         /// instance of the bot
         /// </summary>
-        private TBot bot;
+        private static TBot bot;
+
+        static Function()
+        {
+            bot = new TBot();
+            bot.Initialize();
+        }
 
         /// <summary>
         /// The function processes request (each message in a chart)
@@ -25,21 +31,18 @@ namespace Pavlo.SampleOfTelegramBot
         /// <returns></returns>
         public async Task<string> FunctionHandler(JObject request, ILambdaContext context)
         {
-            LambdaLogger.Log("REQUEST: " + JsonConvert.SerializeObject(request));
+            //LambdaLogger.Log("REQUEST: " + JsonConvert.SerializeObject(request));
 
-            bot = new TBot();
-            bot.Initialize();
             try
             {
                 var updateEvent = request.ToObject<Update>();
 
                 //process the incoming update
                 await bot.HandleUpdateAsync(updateEvent);
-
             }
             catch (Exception e)
             {
-                LambdaLogger.Log("exception: " + e.Message);
+                LambdaLogger.Log("exception: " + e.Message + "\n REQUEST: " + JsonConvert.SerializeObject(request));
             }
 
             return "lambda return";
