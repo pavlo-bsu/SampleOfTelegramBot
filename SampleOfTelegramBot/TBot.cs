@@ -23,7 +23,7 @@ namespace Pavlo.SampleOfTelegramBot
         private readonly string botID = "INSERT_KEY!";
 
         /// <summary>
-        /// words that wake up bot
+        /// words that wake up a bot
         /// </summary>
         public List<string> BotOnKeywords
         { get; set; }
@@ -61,6 +61,7 @@ namespace Pavlo.SampleOfTelegramBot
                 UpdateType.CallbackQuery => CallbackQueryTask(update.CallbackQuery),
                 _ => UnknownUpdateHandlerAsync(update)
             };
+            await handler;
         }
 
         private async Task MessageReceivedTask(Message message)
@@ -90,6 +91,7 @@ namespace Pavlo.SampleOfTelegramBot
                         btnWeather
                     }
                 });
+
             return await Bot.SendTextMessageAsync(
                 chatId: message.Chat.Id,
                 text: "Click on your choice",
@@ -113,7 +115,7 @@ namespace Pavlo.SampleOfTelegramBot
 
         private Task UnknownUpdateHandlerAsync(Update update)
         {
-            LambdaLogger.Log($" Unhandled update type: {update.Type}");
+            LambdaLogger.Log($"Unhandled update type: {update.Type}");
             return Task.CompletedTask;
         }
     }
