@@ -34,7 +34,7 @@ In the code you should only set the proper path to a file with bot token.
 
 Second option: bot is deployed on `Amazon Web Services`.
 
-Telegram sends each new message to Amazon `API Gateway` which run `Lambda function` with bot logic (see section [“Bot logic”](#bot-logic) and Fig. 1).
+Telegram sends each new message to Amazon `API Gateway` which run `Lambda function` with bot logic (see section [“Bot logic”](#bot-logic) and figure shown hereinafter).
 
 ![Figure 1](https://raw.githubusercontent.com/pavlo-bsu/SampleOfTelegramBot/backmatter/img/TelegramBot.png)
 
