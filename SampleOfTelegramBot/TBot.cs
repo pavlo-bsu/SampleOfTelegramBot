@@ -81,14 +81,20 @@ namespace Pavlo.SampleOfTelegramBot
 
         async Task<Message> SendInlineKeyboard(Message message)
         {
-            InlineKeyboardButton btnWeather = InlineKeyboardButton.WithCallbackData(weatherAction.BtnName, weatherAction.BtnCallbackData);
+            InlineKeyboardButton btnWeatherMinsk = InlineKeyboardButton.WithCallbackData(weatherAction.BtnMinskName, weatherAction.BtnMinskCallbackData);
+            InlineKeyboardButton btnWeatherAbuDhabi = InlineKeyboardButton.WithCallbackData(weatherAction.BtnAbuDhabiName, weatherAction.BtnAbuDhabiCallbackData);
 
             var inlineKeyboard = new InlineKeyboardMarkup(new[]
             {
                     // first row
                     new []
                     {
-                        btnWeather
+                        btnWeatherMinsk
+                    },
+                    // second row
+                    new []
+                    {
+                        btnWeatherAbuDhabi
                     }
                 });
 
@@ -101,15 +107,25 @@ namespace Pavlo.SampleOfTelegramBot
 
         private async Task CallbackQueryTask(CallbackQuery callbackQuery)
         {
-            if (callbackQuery.Data == weatherAction.BtnCallbackData)
-            {
+            if (callbackQuery.Data == weatherAction.BtnMinskCallbackData)
+            {//i.e. weather for Minsk
                 await Bot.AnswerCallbackQueryAsync(
                     callbackQueryId: callbackQuery.Id,
                     text: weatherAction.AnswerCallbackQuery);
 
                 await Bot.SendTextMessageAsync(
                     chatId: callbackQuery.Message.Chat.Id,
-                    text: await weatherAction.GetCurrentWeatherAsync());
+                    text: await weatherAction.GetWeatherFromPogodaByAsync_v_11_2021());
+            }
+            else if (callbackQuery.Data == weatherAction.BtnAbuDhabiCallbackData)
+            {//i.e. weather for Abu Dhabi
+                await Bot.AnswerCallbackQueryAsync(
+                    callbackQueryId: callbackQuery.Id,
+                    text: weatherAction.AnswerCallbackQuery);
+
+                await Bot.SendTextMessageAsync(
+                    chatId: callbackQuery.Message.Chat.Id,
+                    text: await weatherAction.GetAbuDhabiWeatherFromAvmetAe_v_03_2024_Async());
             }
         }
 
