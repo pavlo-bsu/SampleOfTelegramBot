@@ -130,16 +130,18 @@ namespace Pavlo.SampleOfTelegramBot.Actions
             string dateTime = date + " " + time;
             DateTime dt = DateTime.Parse(dateTime, new System.Globalization.CultureInfo("en-US"));
 
-            dt = dt.AddHours(3);
+            // Convert to Belarus local time
+            TimeSpan byOffset = TimeSpan.FromHours(3);// BY time zone offset is UTC+3
+            dt = dt + byOffset;
 
-            string datetimeOut = (dt.ToShortDateString() + " " + dt.ToLongTimeString());
+            string datetimeOut = dt.ToString("dd.MM.yyyy HH:mm");
 
             //formatting weather
             string[] weather = weatherDate["description"].InnerText.Split(" | ", StringSplitOptions.None);
             weather = weather.Where(val => !val.ToLowerInvariant().StartsWith("давление")).ToArray();
             var weatherOut = string.Join("\n", weather);
 
-            string outString = "Погода\n"+datetimeOut+"\n"+weatherOut;
+            string outString = "Погода в Минске\n"+datetimeOut+"\n"+weatherOut;
 
             return outString;
         }
