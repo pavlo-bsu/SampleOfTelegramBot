@@ -1,11 +1,11 @@
 
 {
     "region" : "eu-central-1",
-    "profile" : "default",
+    "profile" : "mainActionsUser",
     "configuration" : "Release",
     "framework"     : "net6.0",
     "function-name" : "TelegramBot",
-    "function-description" : "",
+    "function-description" : "AbuDhabi weather",
     "package-type"         : "Zip",
     "function-handler"     : "SampleOfTelegramBot::Pavlo.SampleOfTelegramBot.Function::FunctionHandler",
     "function-memory-size" : 256,
@@ -15,5 +15,7 @@
     "function-architecture" : "x86_64",
     "tracing-mode"          : "PassThrough",
     "environment-variables" : "",
-    "image-tag"             : ""
+    "image-tag"             : "",
+    "function-subnets"      : "",
+    "function-security-groups" : ""
 }
