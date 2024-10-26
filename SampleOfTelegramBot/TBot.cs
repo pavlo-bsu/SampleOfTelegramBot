@@ -125,7 +125,7 @@ namespace Pavlo.SampleOfTelegramBot
 
                 await Bot.SendTextMessageAsync(
                     chatId: callbackQuery.Message.Chat.Id,
-                    text: await weatherAction.GetAbuDhabiWeatherFromAvmetAe_v_03_2024_Async());
+                    text: await weatherAction.GetAbuDhabiWeatherFromAvmetAe_v_10_2024_Async());
             }
         }
 

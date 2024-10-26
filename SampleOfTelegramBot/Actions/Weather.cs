@@ -208,6 +208,67 @@ namespace Pavlo.SampleOfTelegramBot.Actions
         }
 
         /// <summary>
+        /// Get current weather from "https://www.avmet.ae/", i.e. from AbuDhabi weather station (Zayed International Airport). 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string> GetAbuDhabiWeatherFromAvmetAe_v_10_2024_Async()
+        {
+            Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            System.Net.WebClient wc = new System.Net.WebClient();
+            string webData = await wc.DownloadStringTaskAsync("https://www.avmet.ae/omaa.aspx");
+
+            //cut garbage
+            string strBeginning = "UpdatepanelOMAA";
+            string strEnd = "dvpanelcontSWR";
+            var indexBeginning = webData.IndexOf(strBeginning);
+            var indexEnd = webData.IndexOf(strEnd, indexBeginning);
+            string webWeather = webData.Substring(indexBeginning, indexEnd - indexBeginning);
+
+
+            //get local AbuDhabi time
+            string dateBeginning = " title=\"";
+            string dateEnd = "\">";
+            string dateStr = GetSubStringInBetween(webWeather, dateBeginning, dateEnd);
+            DateTime date = DateTime.Parse(dateStr, System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+            // Convert to UAE local time
+            TimeSpan uaeOffset = TimeSpan.FromHours(4);// UAE time zone offset is UTC+4
+            date = date + uaeOffset;
+            string datetimeOut = date.ToString("dd.MM.yyyy HH:mm");
+
+            //get temperature
+            string tempBeginning = "title=\"TAINS: ";
+            string tempEnd = "\">";
+            var tempStr = GetSubStringInBetween(webWeather, tempBeginning, tempEnd);
+            double temperature = double.Parse(tempStr, System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+            string temperatureOut = temperature.ToString("+0°C;-0°C");
+
+
+            // get humidity
+            string humBeginning = "title=\"RHINS:";
+            string humEnd = "\">";
+            string humStr = GetSubStringInBetween(webWeather, humBeginning, humEnd);
+            double humidity = double.Parse(humStr, System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+            string humidityOut = humidity.ToString("0") + "%";
+
+            // get wind
+            string windBeginning = "title=\"WS10A:";
+            string windEnd = "\" class";
+
+            string windStrTmp = GetSubStringInBetween(webWeather, windBeginning, windEnd);
+            var windStr = windStrTmp;
+            //velocity [Knot]
+            double windKnot = double.Parse(windStr, System.Globalization.CultureInfo.GetCultureInfo("en-US"));
+            //velocity [m/s]
+            double windMPS = windKnot * 0.514;
+            string windOut = windMPS.ToString("0m/s");
+
+            //total string
+            string result = $"Abu Dhabi weather\n\r{datetimeOut}\n\rTemperature: {temperatureOut}\r\nHumidity: {humidityOut}\r\nWind: {windOut}";
+
+            return result;
+        }
+
+        /// <summary>
         /// get substring excluding the beginning and the ending
         /// </summary>
         /// <param name="totalStr">source string</param>
